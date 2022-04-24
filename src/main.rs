@@ -17,13 +17,13 @@ impl Node {
     }
 }
 
-struct Three {
+struct Vocabulary {
     root: Node,
 }
 
-impl Three {
+impl Vocabulary {
     pub fn new() -> Self {
-        Three {
+        Self {
             root: Node::genesis(),
         }
     }
@@ -148,10 +148,10 @@ impl Three {
 }
 
 fn main() {
-    let mut t = Three::new();
+    let mut fruits = Vocabulary::new();
 
-    globals::FRUITS.into_iter().for_each(|v| t.insert(v));
-    let result = t.search("Ap");
+    globals::FRUITS.into_iter().for_each(|v| fruits.insert(v));
+    let result = fruits.search("Ap");
 
     println!("{:#?}", result);
 }
