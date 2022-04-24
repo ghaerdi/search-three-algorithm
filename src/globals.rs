@@ -1,4 +1,4 @@
-pub const FRUITS: [&'static str; 309] = [
+pub const FRUITS: [&str; 309] = [
     "Apple",
     "Apricot",
     "Avocado",
