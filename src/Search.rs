@@ -6,12 +6,35 @@ struct Node {
     nodes: Vec<Node>,
 }
 
-impl Node {
-    fn genesis() -> Self {
+struct NodeBuilder {
+    value: char,
+    nodes: Vec<Node>,
+}
+
+impl NodeBuilder {
+    fn push_node(&mut self, node: Node) -> &mut Self {
+        self.nodes.push(node);
+        self
+    }
+
+    fn build(&self) -> Node {
         Node {
-            value: '\0',
+            value: self.value.clone(),
+            nodes: self.nodes.clone(),
+        }
+    }
+}
+
+impl Node {
+    fn new(c: char) -> NodeBuilder {
+        NodeBuilder {
+            value: c,
             nodes: vec![],
         }
+    }
+
+    fn genesis() -> Self {
+        Self::new('\0').build()
     }
 }
 
@@ -32,15 +55,10 @@ impl Vocabulary {
         let (node, mut chars) = Self::get_node_by_chars(&mut self.root, chars);
 
         if let Some(c) = chars.pop_back() {
-            let mut temp = Node {
-                value: c,
-                nodes: vec![],
-            };
+            let mut temp = Node::new(c).build();
+
             while let Some(c) = chars.pop_back() {
-                temp = Node {
-                    value: c,
-                    nodes: vec![temp],
-                }
+                temp = Node::new(c).push_node(temp).build();
             }
 
             node.nodes.push(temp);
@@ -115,7 +133,6 @@ impl Vocabulary {
             })
         });
 
-
         fn recursive(stack: &mut Vec<TempNode>, words: &mut Vec<String>) {
             if stack.is_empty() {
                 return;
@@ -127,10 +144,7 @@ impl Vocabulary {
                 current.node.nodes.into_iter().for_each(|el| {
                     let text = format!("{}{}", current.text, current.node.value);
 
-                    stack.push(TempNode {
-                        node: el,
-                        text,
-                    })
+                    stack.push(TempNode { node: el, text })
                 });
             } else {
                 words.push(format!("{}{}", current.text, current.node.value));
@@ -144,4 +158,3 @@ impl Vocabulary {
         words
     }
 }
-
