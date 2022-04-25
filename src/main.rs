@@ -17,14 +17,11 @@ fn main() {
     let result: Vec<String>;
 
     match args.get(1) {
-        Some(arg) => {
-            if *arg == ".".to_owned() {
-                result = fruits.get_all();
-            } else {
-                result = fruits.search(arg);
-            }
+        Some(arg) => match arg.eq(".") {
+            true => result = fruits.get_all(),
+            false => result = fruits.search(arg),
         },
-        None => result = fruits.get_all()
+        None => result = fruits.get_all(),
     }
 
     if result.is_empty() {
@@ -32,5 +29,4 @@ fn main() {
     } else {
         println!("{:#?}", result);
     }
-
 }

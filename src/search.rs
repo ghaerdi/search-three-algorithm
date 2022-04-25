@@ -1,9 +1,10 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Node {
     value: char,
-    nodes: Vec<Node>,
+    nodes: HashMap<char, Node>,
+    is_end: bool,
 }
 
 struct NodeBuilder {
@@ -18,9 +19,15 @@ impl NodeBuilder {
     }
 
     fn build(&self) -> Node {
+        let mut map = HashMap::new();
+        self.nodes.clone().into_iter().for_each(|el| {
+            map.insert(el.value, el);
+        });
+
         Node {
-            value: self.value.clone(),
-            nodes: self.nodes.clone(),
+            value: self.value,
+            nodes: map,
+            is_end: false,
         }
     }
 }
@@ -38,30 +45,47 @@ impl Node {
     }
 }
 
+#[derive(Debug)]
 pub struct Vocabulary {
     root: Node,
+    len: usize,
 }
 
 impl Vocabulary {
     pub fn new() -> Self {
         Self {
             root: Node::genesis(),
+            len: 0,
         }
     }
-    pub fn insert(&mut self, text: &str) {
-        let text = text.to_lowercase();
+    pub fn len(&self) -> usize {
+        self.len
+    }
 
-        let chars = Self::str_to_chars(&text);
+    pub fn insert(&mut self, text: &str) {
+        let chars = Self::str_to_chars(text);
         let (node, mut chars) = Self::get_node_by_chars(&mut self.root, chars);
 
-        if let Some(c) = chars.pop_back() {
-            let mut temp = Node::new(c).build();
+        match chars.pop_back() {
+            Some(c) => {
+                let mut temp = Node::new(c).build();
 
-            while let Some(c) = chars.pop_back() {
-                temp = Node::new(c).push_node(temp).build();
+                temp.is_end = true;
+
+                while let Some(c) = chars.pop_back() {
+                    temp = Node::new(c).push_node(temp).build();
+                }
+
+                node.nodes.insert(temp.value, temp);
+                self.len += 1;
             }
-
-            node.nodes.push(temp);
+            None => match node.is_end {
+                true => println!("{} already exist", text),
+                false => {
+                    node.is_end = true;
+                    self.len += 1;
+                },
+            },
         }
     }
 
@@ -88,7 +112,6 @@ impl Vocabulary {
         Self::nodes_to_text("", node.clone())
     }
 
-    // TODO: Move this fn to a utils file
     fn str_to_chars(s: &str) -> VecDeque<char> {
         let mut chars = VecDeque::with_capacity(s.len());
 
@@ -104,11 +127,9 @@ impl Vocabulary {
         mut chars: VecDeque<char>,
     ) -> (&mut Node, VecDeque<char>) {
         if let Some(c) = chars.pop_front() {
-            let node_position = node.nodes.clone().into_iter().position(|el| el.value == c);
-
-            match node_position {
-                Some(position) => return Self::get_node_by_chars(&mut node.nodes[position], chars),
-                None => {
+            match node.nodes.contains_key(&c) {
+                true => return Self::get_node_by_chars(node.nodes.get_mut(&c).unwrap(), chars),
+                false => {
                     chars.push_front(c);
                     return (node, chars);
                 }
@@ -123,10 +144,10 @@ impl Vocabulary {
             text: String,
         }
 
-        let mut stack: Vec<TempNode> = vec![];
+        let mut stack = vec![];
         let mut words = vec![];
 
-        node.nodes.into_iter().for_each(|el| {
+        node.nodes.into_iter().for_each(|(_, el)| {
             stack.push(TempNode {
                 node: el,
                 text: text.to_string(),
@@ -139,18 +160,21 @@ impl Vocabulary {
             }
 
             let current = stack.pop().unwrap();
+            let text = format!("{}{}", current.text, current.node.value);
 
-            if !current.node.nodes.is_empty() {
-                current.node.nodes.into_iter().for_each(|el| {
-                    let text = format!("{}{}", current.text, current.node.value);
+            match !current.node.nodes.is_empty() {
+                true => current.node.nodes.into_iter().for_each(|(_, el)| {
+                    if current.node.is_end {
+                        words.push(text.clone());
+                    }
 
-                    stack.push(TempNode { node: el, text })
-                });
-            } else {
-                words.push(format!("{}{}", current.text, current.node.value));
+                    stack.push(TempNode { node: el, text: text.clone() });
+                }),
+                false =>  words.push(text),
             }
 
-            recursive(stack, words);
+
+            recursive(stack, words)
         }
 
         recursive(&mut stack, &mut words);
