@@ -84,7 +84,7 @@ impl Vocabulary {
                 false => {
                     node.is_end = true;
                     self.len += 1;
-                },
+                }
             },
         }
     }
@@ -168,11 +168,13 @@ impl Vocabulary {
                         words.push(text.clone());
                     }
 
-                    stack.push(TempNode { node: el, text: text.clone() });
+                    stack.push(TempNode {
+                        node: el,
+                        text: text.clone(),
+                    });
                 }),
-                false =>  words.push(text),
+                false => words.push(text),
             }
-
 
             recursive(stack, words)
         }

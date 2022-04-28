@@ -43,7 +43,10 @@ fn main() {
         // }
     });
 
-    println!("ARRAY {}", vector_time.elapsed().as_millis() as f32 / 1000.0);
+    println!(
+        "ARRAY {}",
+        vector_time.elapsed().as_millis() as f32 / 1000.0
+    );
 
     // THREE
     let vocabulary_time = Instant::now();
@@ -66,5 +69,8 @@ fn main() {
         // }
     });
 
-    println!("THREE {}", vocabulary_time.elapsed().as_millis() as f32 / 1000.0)
+    println!(
+        "THREE {}",
+        vocabulary_time.elapsed().as_millis() as f32 / 1000.0
+    )
 }
