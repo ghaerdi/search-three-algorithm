@@ -19,7 +19,7 @@ impl NodeBuilder {
         self
     }
 
-    fn push_word(&mut self, text: &str)-> &mut Self {
+    fn push_word(&mut self, text: &str) -> &mut Self {
         self.words.push(text.to_owned());
         self
     }
