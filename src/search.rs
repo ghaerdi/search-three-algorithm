@@ -63,6 +63,7 @@ impl Vocabulary {
             root: Node::genesis(),
         }
     }
+
     pub fn len(&self) -> usize {
         self.root.words.len()
     }
@@ -146,5 +147,57 @@ impl Vocabulary {
             return (node, chars);
         }
         (node, chars)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const WORDS: [&'static str; 2] = ["foo", "bar"];
+
+    #[test]
+    fn insert_and_get_all() {
+        let mut three = Vocabulary::new();
+        WORDS.into_iter().for_each(|v| three.insert(v));
+
+        let words: Vec<String> = WORDS.into_iter().map(|v| v.to_owned()).collect();
+
+        assert_eq!(three.get_all(), &words);
+    }
+
+    #[test]
+    fn insert_and_search_empty_string() {
+        let mut three = Vocabulary::new();
+        WORDS.into_iter().for_each(|v| three.insert(v));
+
+        let words: Vec<String> = WORDS.into_iter().map(|v| v.to_owned()).collect();
+
+        assert_eq!(three.search(""), &words);
+    }
+
+    #[test]
+    fn insert_and_search_exact_item() {
+        let mut three = Vocabulary::new();
+        WORDS.into_iter().for_each(|v| three.insert(v));
+
+        let words: Vec<String> = WORDS.into_iter().map(|v| v.to_owned()).collect();
+
+        assert_eq!(
+            three.search(WORDS[1]),
+            &words
+                .clone()
+                .into_iter()
+                .filter(|v| v.starts_with(words.get(1).unwrap()))
+                .collect::<Vec<String>>()
+        );
+    }
+
+    #[test]
+    fn insert_and_get_len() {
+        let mut three = Vocabulary::new();
+        WORDS.into_iter().for_each(|v| three.insert(v));
+
+        assert_eq!(three.len(), WORDS.len());
     }
 }
