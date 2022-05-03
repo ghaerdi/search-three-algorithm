@@ -1,4 +1,4 @@
-pub const FRUITS: [&str; 1415] = [
+pub const WORDS: [&str; 1415] = [
     "apple",
     "apricot",
     "avocado",

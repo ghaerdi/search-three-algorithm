@@ -15,7 +15,7 @@ fn main() {
     let repeat = 1_000_000;
 
     // ARRAY
-    let fruits = Vec::from(globals::FRUITS);
+    let fruits = Vec::from(globals::WORDS);
 
     let vector_time = Instant::now();
 
@@ -37,7 +37,7 @@ fn main() {
 
     // THREE
     let mut fruits = Vocabulary::new();
-    globals::FRUITS.into_iter().for_each(|v| fruits.insert(v));
+    globals::WORDS.into_iter().for_each(|v| fruits.insert(v));
 
     let vocabulary_time = Instant::now();
 
